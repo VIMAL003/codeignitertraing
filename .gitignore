@@ -1,6 +1,8 @@
 */config/development
 */logs/log-*.php
 !*/logs/index.html
-*/cache/*
+cache/*
+user_guide/*
+nbproject/*
 !*/cache/index.html
 !*/cache/.htaccess

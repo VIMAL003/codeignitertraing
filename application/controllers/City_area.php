@@ -1,0 +1,158 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class City_area extends CI_Controller
+{
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->model('City_area_model');
+        $this->load->library('form_validation');
+    }
+
+    public function index()
+    {
+        $q = urldecode($this->input->get('q', TRUE));
+        $start = intval($this->input->get('start'));
+        
+        if ($q <> '') {
+            $config['base_url'] = base_url() . 'city_area/index.html?q=' . urlencode($q);
+            $config['first_url'] = base_url() . 'city_area/index.html?q=' . urlencode($q);
+        } else {
+            $config['base_url'] = base_url() . 'city_area/index.html';
+            $config['first_url'] = base_url() . 'city_area/index.html';
+        }
+
+        $config['per_page'] = 10;
+        $config['page_query_string'] = TRUE;
+        $config['total_rows'] = $this->City_area_model->total_rows($q);
+        $city_area = $this->City_area_model->get_limit_data($config['per_page'], $start, $q);
+
+        $this->load->library('pagination');
+        $this->pagination->initialize($config);
+
+        $data = array(
+            'city_area_data' => $city_area,
+            'q' => $q,
+            'pagination' => $this->pagination->create_links(),
+            'total_rows' => $config['total_rows'],
+            'start' => $start,
+        );
+        $this->load->view('city_area/city_area_list', $data);
+    }
+
+    public function read($id) 
+    {
+        $row = $this->City_area_model->get_by_id($id);
+        if ($row) {
+            $data = array(
+		'id' => $row->id,
+		'city_id' => $row->city_id,
+		'name' => $row->name,
+	    );
+            $this->load->view('city_area/city_area_read', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('city_area'));
+        }
+    }
+
+    public function create() 
+    {
+        $data = array(
+            'button' => 'Create',
+            'action' => site_url('city_area/create_action'),
+	    'id' => set_value('id'),
+	    'city_id' => set_value('city_id'),
+	    'name' => set_value('name'),
+	);
+        $this->load->view('city_area/city_area_form', $data);
+    }
+    
+    public function create_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->create();
+        } else {
+            $data = array(
+		'city_id' => $this->input->post('city_id',TRUE),
+		'name' => $this->input->post('name',TRUE),
+	    );
+
+            $this->City_area_model->insert($data);
+            $this->session->set_flashdata('message', 'Create Record Success');
+            redirect(site_url('city_area'));
+        }
+    }
+    
+    public function update($id) 
+    {
+        $row = $this->City_area_model->get_by_id($id);
+
+        if ($row) {
+            $data = array(
+                'button' => 'Update',
+                'action' => site_url('city_area/update_action'),
+		'id' => set_value('id', $row->id),
+		'city_id' => set_value('city_id', $row->city_id),
+		'name' => set_value('name', $row->name),
+	    );
+            $this->load->view('city_area/city_area_form', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('city_area'));
+        }
+    }
+    
+    public function update_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->update($this->input->post('id', TRUE));
+        } else {
+            $data = array(
+		'city_id' => $this->input->post('city_id',TRUE),
+		'name' => $this->input->post('name',TRUE),
+	    );
+
+            $this->City_area_model->update($this->input->post('id', TRUE), $data);
+            $this->session->set_flashdata('message', 'Update Record Success');
+            redirect(site_url('city_area'));
+        }
+    }
+    
+    public function delete($id) 
+    {
+        $row = $this->City_area_model->get_by_id($id);
+
+        if ($row) {
+            $this->City_area_model->delete($id);
+            $this->session->set_flashdata('message', 'Delete Record Success');
+            redirect(site_url('city_area'));
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('city_area'));
+        }
+    }
+
+    public function _rules() 
+    {
+	$this->form_validation->set_rules('city_id', 'city id', 'trim|required');
+	$this->form_validation->set_rules('name', 'name', 'trim|required');
+
+	$this->form_validation->set_rules('id', 'id', 'trim');
+	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+}
+
+/* End of file City_area.php */
+/* Location: ./application/controllers/City_area.php */
+/* Please DO NOT modify this information : */
+/* Generated by Harviacode Codeigniter CRUD Generator 2016-07-05 15:23:16 */
+/* http://harviacode.com */
