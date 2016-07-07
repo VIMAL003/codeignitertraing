@@ -140,6 +140,7 @@ class City extends CI_Controller
 	$this->form_validation->set_rules('name', 'name', 'trim|required|is_unique[city.name]');
 
 	$this->form_validation->set_rules('id', 'id', 'trim');
+        $this->form_validation->set_message('required', 'The %s is required.');
 	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
     }
 
